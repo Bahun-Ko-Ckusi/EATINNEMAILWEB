@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Grocery List - EAT-INN</title>
+
+    <!-- Favicons - Light mode (black icon) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/blackfavicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/blackfavicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/blackfavicon/favicon-16x16.png">
+    <link rel="icon" type="image/x-icon" href="/icons/blackfavicon/favicon.ico">
+
+    <!-- Favicons - Dark mode (white icon) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/whitefavicons/favicon-32x32.png" media="(prefers-color-scheme: dark)">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/whitefavicons/favicon-16x16.png" media="(prefers-color-scheme: dark)">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: #1a1a1a;
+            --bg-card-hover: #222222;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --accent-primary: #ffffff;
+            --accent-secondary: #e5e5e5;
+            --accent-muted: #a3a3a3;
+            --border: rgba(255,255,255,0.08);
+            --border-hover: rgba(255,255,255,0.15);
+            --success: #22c55e;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            padding: 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 80px 0 60px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            letter-spacing: -1.5px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .list-meta {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .list-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .content-section {
+            padding: 40px 0 80px;
+        }
+
+        .content-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+        .category {
+            margin-bottom: 32px;
+        }
+
+        .category:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .category-icon {
+            font-size: 1.5rem;
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .category-count {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .grocery-list {
+            list-style: none;
+        }
+
+        .grocery-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+
+        .grocery-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .grocery-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border-hover);
+            border-radius: 6px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checkbox.checked {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            color: var(--bg-primary);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .item-name.checked {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .item-quantity {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 2px;
+        }
+
+        .progress-section {
+            margin-bottom: 32px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+
+        .cta-section p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 40px 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .footer-logo-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .footer-logo span {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-primary);
+        }
+
+        .footer-company {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 44px;
+            height: 44px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+        }
+
+        .hamburger span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 10, 0.98);
+            z-index: 999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 600;
+            padding: 12px 24px;
+            transition: color 0.2s;
+        }
+
+        .mobile-menu a:hover {
+            color: var(--accent-secondary);
+        }
+
+        .mobile-menu .btn-primary {
+            margin-top: 16px;
+            font-size: 1rem;
+            padding: 14px 28px;
+            color: var(--bg-primary);
+            background: var(--text-primary);
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-close:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .mobile-menu {
+                display: flex;
+            }
+            .hero {
+                padding: 60px 0 40px;
+            }
+            .content-card {
+                padding: 32px 24px;
+            }
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .footer-left {
+                flex-direction: column;
+            }
+            .list-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-effects">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <a href="/" class="logo">
+                <img src="/icons/whiteicon.png" alt="Eat-Inn" class="logo-icon">
+                <span class="logo-text">Eat-Inn</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/">Support</a>
+                <a href="/terms/">Terms</a>
+                <a href="https://apps.apple.com/us/app/eat-inn/id6760630503" class="btn-primary">Get App</a>
+            </nav>
+            <button class="hamburger" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu">
+            <button class="mobile-menu-close" aria-label="Close menu">&times;</button>
+            <a href="/">Support</a>
+            <a href="/terms/">Terms</a>
+            <a href="https://apps.apple.com/us/app/eat-inn/id6760630503" class="btn-primary">Get App</a>
+        </div>
+
+        <section class="hero">
+            <div class="hero-badge">
+                Shared List
+            </div>
+            <h1>Weekly <span class="gradient-text">Grocery List</span></h1>
+            <div class="list-meta">
+                <span>12 items</span>
+                <span>Shared by Austin</span>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="content-card">
+                <div class="progress-section">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 25%"></div>
+                    </div>
+                    <p class="progress-text">3 of 12 items checked</p>
+                </div>
+
+                <div class="category">
+                    <div class="category-header">
+                        <span class="category-icon">🥬</span>
+                        <span class="category-title">Produce</span>
+                        <span class="category-count">4 items</span>
+                    </div>
+                    <ul class="grocery-list">
+                        <li class="grocery-item">
+                            <div class="checkbox checked"></div>
+                            <div class="item-details">
+                                <div class="item-name checked">Avocados</div>
+                                <div class="item-quantity">3 pieces</div>
+                            </div>
+                        </li>
+                        <li class="grocery-item">
+                            <div class="checkbox"></div>
+                            <div class="item-details">
+                                <div class="item-name">Cherry Tomatoes</div>
+                                <div class="item-quantity">1 pint</div>
+                            </div>
+                        </li>
+                        <li class="grocery-item">
+                            <div class="checkbox checked"></div>
+                            <div class="item-details">
+                                <div class="item-name checked">Fresh Basil</div>
+                                <div class="item-quantity">1 bunch</div>
+                            </div>
+                        </li>
+                        <li class="grocery-item">
+                            <div class="checkbox"></div>
+                            <div class="item-details">
+                                <div class="item-name">Lemons</div>
+                                <div class="item-quantity">4 pieces</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <div class="category-header">
+                        <span class="category-icon">🥛</span>
+                        <span class="category-title">Dairy</span>
+                        <span class="category-count">3 items</span>
+                    </div>
+                    <ul class="grocery-list">
+                        <li class="grocery-item">
+                            <div class="checkbox"></div>
+                            <div class="item-details">
+                                <div class="item-name">Greek Yogurt</div>
+                                <div class="item-quantity">32 oz container</div>
+                            </div>
+                        </li>
+                        <li class="grocery-item">
+                            <div class="checkbox checked"></div>
+                            <div class="item-details">
+                                <div class="item-name checked">Parmesan Cheese</div>
+                                <div class="item-quantity">8 oz block</div>
+                            </div>
+                        </li>
+                        <li class="grocery-item">
+                            <div class="checkbox"></div>
+                            <div class="item-details">
+                                <div class="item-name">Butter</div>
+                                <div class="item-quantity">1 lb</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <div class="category-header">
+                        <span class="category-icon">🍖</span>
+                        <span class="category-title">Meat & Seafood</span>
+                        <span class="category-count">2 items</span>
+                    </div>
+                    <ul class="grocery-list">
+                        <li class="grocery-item">
+                            <div class="checkbox"></div>
+                            <div class="item-details">
+                                <div class="item-name">Chicken Breast</div>
+                                <div class="item-quantity">2 lbs</div>
+                            </div>
+                        </li>
+                        <li class="grocery-item">
+                            <div class="checkbox"></div>
+                            <div class="item-details">
+                                <div class="item-name">Salmon Fillets</div>
+                                <div class="item-quantity">1 lb</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <div class="category-header">
+                        <span class="category-icon">🥫</span>
+                        <span class="category-title">Pantry</span>
+                        <span class="category-count">3 items</span>
+                    </div>
+                    <ul class="grocery-list">
+                        <li class="grocery-item">
+                            <div class="checkbox"></div>
+                            <div class="item-details">
+                                <div class="item-name">Olive Oil</div>
+                                <div class="item-quantity">500ml bottle</div>
+                            </div>
+                        </li>
+                        <li class="grocery-item">
+                            <div class="checkbox"></div>
+                            <div class="item-details">
+                                <div class="item-name">Spaghetti</div>
+                                <div class="item-quantity">1 lb box</div>
+                            </div>
+                        </li>
+                        <li class="grocery-item">
+                            <div class="checkbox"></div>
+                            <div class="item-details">
+                                <div class="item-name">Canned Tomatoes</div>
+                                <div class="item-quantity">2 cans</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="cta-section">
+                    <p>Create and share your own grocery lists with Eat-Inn</p>
+                    <a href="https://apps.apple.com/us/app/eat-inn/id6760630503" class="btn-primary">Download Eat-Inn</a>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="/" class="footer-logo">
+                        <img src="/icons/whiteicon.png" alt="Eat-Inn" class="footer-logo-icon">
+                        <span>Eat-Inn</span>
+                    </a>
+                    <div class="footer-links">
+                        <a href="/terms/">Terms</a>
+                        <a href="/privacy/">Privacy</a>
+                        <a href="mailto:support@eatinn.org">Contact</a>
+                    </div>
+                </div>
+                <span class="footer-company">&copy; 2026 POKHREL DEVELOPMENT LLC</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const mobileMenuClose = document.querySelector('.mobile-menu-close');
+        const mobileLinks = document.querySelectorAll('.mobile-menu a');
+
+        function toggleMobileMenu() {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        hamburger.addEventListener('click', toggleMobileMenu);
+        mobileMenuClose.addEventListener('click', toggleMobileMenu);
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (mobileMenu.classList.contains('active')) {
+                    toggleMobileMenu();
+                }
+            });
+        });
+
+        // Checkbox toggle functionality
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+                const itemName = this.nextElementSibling.querySelector('.item-name');
+                itemName.classList.toggle('checked');
+                updateProgress();
+            });
+        });
+
+        function updateProgress() {
+            const total = document.querySelectorAll('.checkbox').length;
+            const checked = document.querySelectorAll('.checkbox.checked').length;
+            const percentage = (checked / total) * 100;
+            document.querySelector('.progress-fill').style.width = percentage + '%';
+            document.querySelector('.progress-text').textContent = `${checked} of ${total} items checked`;
+        }
+    </script>
+</body>
+</html>
