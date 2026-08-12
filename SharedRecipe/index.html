@@ -1008,15 +1008,20 @@
             }
 
             try {
-                const fetchUrl = `${SUPABASE_URL}/rest/v1/shared_recipes?id=eq.${encodeURIComponent(id)}&select=*`;
-                console.log('[SharedRecipe] Fetching:', fetchUrl);
+                // Fetch a single share by id via a SECURITY DEFINER RPC. Direct
+                // table access is being locked down so anon cannot enumerate all
+                // recent shares; the RPC returns only the row with this exact id.
+                const fetchUrl = `${SUPABASE_URL}/rest/v1/rpc/get_shared_recipe`;
+                console.log('[SharedRecipe] Fetching via RPC:', fetchUrl);
 
                 const response = await fetch(fetchUrl, {
+                    method: 'POST',
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({ p_id: id })
                 });
 
                 console.log('[SharedRecipe] Response status:', response.status);
